@@ -12,3 +12,60 @@
 ![](https://i.imgur.com/S3Mhxau.png)
 
 因此可以使用WebSocket來實作如：在線聊天室、共同編輯、股票交易等，實時性要求高的應用，而不需使用輪詢（Polling）等技術。
+
+## 如何開始WebSocket
+
+主要會分成Server與Client兩邊進行。
+
+#### *Server*
+
+- 創建一個Socket並綁定Server的IP與Port。
+- 開始監聽有無client請求連線。
+- 接到請求後避免阻塞為其開一個Thread，並循環監聽連接的client處理訊息。
+
+#### *Client*
+
+- 設置一個要連過去Server的Socket並綁好Server的IP與Port。
+- 向伺服器發起連線請求。
+- 連接後開始處理要發送與接收的訊息。
+- 設置中斷連接的方法。
+
+## Server實作
+
+```c#
+IPAddress ipAddress = IPAddress.Parse("Your IP");
+int port = 8888; //Your port
+
+TcpListener server = new TcpListener(ipAddress, port);
+server.Start();
+Console.WriteLine("Server started. Listening for clients...");
+```
+
+首先指定好Server的IP與監聽的Port，再創建監聽的Socket`TcpListener`並綁定IP與Port，然後開始監聽等待連線。
+
+```c#
+while (true)
+{
+    TcpClient client = server.AcceptTcpClient();
+    clientList.Add(client);
+    Console.WriteLine("Client connected.");
+
+    Thread clientThread = new Thread(HandleClient);
+    clientThread.Start(client);
+}
+```
+
+當監聽到Client的連線請求後，接受`AcceptTcpClient()`並放入`clientList`連接池中。
+由於連線請求可能不只一個，因此為每個Client開一個Thread個別處理，防止堵塞。
+
+```c#
+while (true)
+{
+    TcpClient client = server.AcceptTcpClient();
+    clientList.Add(client);
+    Console.WriteLine("Client connected.");
+
+    Thread clientThread = new Thread(HandleClient);
+    clientThread.Start(client);
+}
+```
