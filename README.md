@@ -59,13 +59,36 @@ while (true)
 由於連線請求可能不只一個，因此為每個Client開一個Thread個別處理，防止堵塞。
 
 ```c#
-while (true)
+static void HandleClient(object clientObj)
 {
-    TcpClient client = server.AcceptTcpClient();
-    clientList.Add(client);
-    Console.WriteLine("Client connected.");
+    TcpClient client = (TcpClient)clientObj;
+    NetworkStream stream = client.GetStream();
 
-    Thread clientThread = new Thread(HandleClient);
-    clientThread.Start(client);
+    byte[] buffer = new byte[1024];
+    int bytesRead;
+
+    while (true)
+    {
+        try
+        {
+            bytesRead = stream.Read(buffer, 0, buffer.Length);
+            if (bytesRead == 0)
+                break;
+
+            string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            Console.WriteLine("Received: " + message);
+            BroadcastMsg(message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+            break;
+        }
+    }
+    client.Close();
+    Console.WriteLine("Client disconnected.");
 }
 ```
+
+下一步要來處理訊息，建立連接後可以使用`TcpClient`的`GetStream()`方法取得與客戶端通訊的`NetworkStream`。
+使用`stream.Read()`
