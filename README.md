@@ -91,4 +91,5 @@ static void HandleClient(object clientObj)
 ```
 
 下一步要來處理訊息，建立連接後可以使用`TcpClient`的`GetStream()`方法取得與客戶端通訊的`NetworkStream`。
+
 使用`stream.Read()`
