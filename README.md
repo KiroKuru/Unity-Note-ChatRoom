@@ -132,3 +132,41 @@ static void BroadcastMsg(string msg)
 
 ## Client實作
 
+```c#
+private TcpClient socketConnection;
+private NetworkStream stream;
+private byte[] buffer=new byte[1024];
+private Queue<string> msgQueue=new Queue<string>();
+public string serverIP="Your IP";
+public int serverPort=8888 //Your port;
+public bool connected=false;
+```
+
+首先定義成員變數和屬性：
+
+- `TcpClient socketConnection`：用於代表客戶端的 TcpClient 連接。
+- `NetworkStream stream`：用於從`TcpClient`中獲取資料流，進行訊息的讀取和寫入。
+- `byte[] buffer`：用於暫存從伺服器接收到的資料。
+- `Queue<string> msgQueue`：用於存儲從伺服器接收到的訊息。
+- `string serverIP`：伺服器的IP地址。
+- `int serverPort`：伺服器的Port。
+- `bool connected`：表示客戶端是否已連接到伺服器。
+
+```c#
+public void ConnectToServer()
+{
+    try
+    {
+        socketConnection = new TcpClient(serverIP, serverPort);
+        stream = socketConnection.GetStream();
+
+        BeginReceived();
+
+        connected = true;
+    }
+    catch (Exception error)
+    {
+        Debug.Log("Connection error: " + error.Message);
+    }
+}
+```
