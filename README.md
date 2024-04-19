@@ -92,4 +92,43 @@ static void HandleClient(object clientObj)
 
 下一步要來處理訊息，建立連接後可以使用`TcpClient`的`GetStream()`方法取得與客戶端通訊的`NetworkStream`。
 
-使用`stream.Read()`
+使用`stream.Read()`從客戶端接收資料，並將資料讀入`buffer`中。接著使用`Encoding.UTF8.GetString()`方法將`buffer`中的資料解碼為UTF-8字串。
+
+由於聊天室內會同時有多個客戶端，需要再呼叫`BroadcastMsg`方法將訊息廣播給其他客戶端，這樣訊息才會同步顯示在每個人的聊天室裡。
+
+```c#
+static void BroadcastMsg(string msg)
+{
+    var notConnectedList = newList<TcpClient>();
+
+    foreach (TcpClient client in clientList)
+    {
+        if (client.Connected)
+        {
+            NetworkStream clientStream = client.GetStream();
+            byte[] messageBytes = Encoding.UTF8.GetBytes("Server received: " + msg);
+            clientStream.Write(messageBytes, 0, messageBytes.Length);
+            clientStream.Flush();
+        }
+        else
+        {
+             notConnectedList.Add(client);
+        }
+    }
+    foreach (var notConnect in notConnectedList)
+    {
+        clientList.Remove(notConnect);
+    }
+}
+```
+
+最後一部分是把訊息廣播給所有已連接的客戶端的方法。
+
+首先遍歷`clientList`將已連接與未連接的客戶端分開處理，檢查客戶端的連接狀態`client.Connected`，如果仍然連接，則取得客戶端的`NetworkStream`，將要廣播的訊息`msg`轉換成字節陣列`messageBytes`，然後使用`clientStream.Write()`方法將訊息發送給客戶端。
+
+最後使用`clientStream.Flush()`來確保所有資料都被立即發送。
+
+而未連接的客戶端，創建一個List`notConnectedList`來暫時存儲，最後遍歷一次List將其從`clientList`內移除。
+
+## Client實作
+
