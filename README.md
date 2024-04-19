@@ -170,3 +170,83 @@ public void ConnectToServer()
     }
 }
 ```
+
+`ConnectToServer()`是連接到伺服器的方法，與伺服器很像一開始先建立`TcpClient`並連接到指定的伺服器IP和端口，並獲取 NetworkStream 以進行資料讀取和寫入。
+
+然後使用`BeginRead()`方法開始從伺服器接收資料，並指定當有資料可讀取時要調用的回調方法`ReceiveMessage`。
+
+設置`connected`為true，表示客戶端已連接成功。
+
+```c#
+private void ReceiveMessage(IAsyncResult ar)
+{
+    try
+    {
+        int bytesRead = stream.EndRead(ar);
+        string messageReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+        //將接收到的訊息放入佇列中
+        msgQueue.Enqueue(messageReceived);
+
+        Debug.Log("Received message: " + messageReceived);
+    }
+    catch (Exception error)
+    {
+        Debug.Log("Error receiving message: " + error.Message);
+    }
+}
+```
+
+當從伺服器接收到資料時調用`ReceiveMessage()`，讀取從`NetworkStream`中接收到的資料，轉換成字串。
+
+將接收到的訊息放入`msgQueue`佇列中。
+
+```c#
+public string GetMsgFromQueue()
+{
+    if (msgQueue.Count > 0)
+        return msgQueue.Dequeue();
+    return null;
+}
+```
+
+從`msgQueue`佇列中取出一條訊息，如果佇列不為空則返回訊息，否則返回null。
+
+```c#
+private void SendMessageToServer(string message)
+{
+    try
+    {
+        byte[] bytesToSend = Encoding.UTF8.GetBytes(message);
+        stream.Write(bytesToSend, 0, bytesToSend.Length);
+    }
+    catch (Exception error)
+    {
+        Debug.Log("Error sending message: " + error.Message);
+    }
+}
+```
+
+將要發送的訊息轉換成字節陣列，然後使用`NetworkStream`的`Write()`方法向伺服器發送資料。
+
+```c#
+public void CloseSocket()
+{
+    Debug.Log("Close socket");
+    try
+    {
+        if (socketConnection != null)
+            socketConnection.Close();
+    }
+    catch (Exception error)
+    {
+        Debug.Log(error);
+    }
+    finally
+    {
+        socketConnection = null;
+        connected = false;
+    }
+}
+```
+
+關閉客戶端的`TcpClient`連接，並將`connected`設置為false。
