@@ -251,6 +251,4 @@ public void CloseSocket()
 
 關閉客戶端的`TcpClient`連接，並將`connected`設置為false。
 
-至此一個簡易的聊天室便搭建完成了，最後只需要在Unity內簡單弄個聊天室UI，並將Func綁上去就完成了。
-
-
+至此一個簡易的聊天室便搭建完成了，最後只需要在Unity內簡單弄個聊天室UI，並將Func綁上去就完成了，Github內有搭建好的簡易範例。
