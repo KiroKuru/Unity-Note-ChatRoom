@@ -21,7 +21,7 @@
 
 - 創建一個Socket並綁定Server的IP與Port。
 - 開始監聽有無client請求連線。
-- 接到請求後避免阻塞為其開一個Thread，並循環監聽連接的client處理訊息。
+- 接到請求後為其開一個Thread，並循環監聽連接的client處理訊息。
 
 #### *Client*
 
@@ -56,7 +56,7 @@ while (true)
 ```
 
 當監聽到Client的連線請求後，接受`AcceptTcpClient()`並放入`clientList`連接池中。
-由於連線請求可能不只一個，因此為每個Client開一個Thread個別處理，防止堵塞。
+由於連線請求可能不只一個，因此為每個Client開一個Thread個別處理。
 
 ```c#
 static void HandleClient(object clientObj)
@@ -250,3 +250,7 @@ public void CloseSocket()
 ```
 
 關閉客戶端的`TcpClient`連接，並將`connected`設置為false。
+
+至此一個簡易的聊天室便搭建完成了，最後只需要在Unity內簡單弄個聊天室UI，並將Func綁上去就完成了。
+
+
