@@ -250,4 +250,6 @@ public void CloseSocket()
 
 至此一個簡易的聊天室便搭建完成了，最後只需要在Unity內簡單弄個聊天室UI，並將Func綁上去就完成了，Github內有搭建好的簡易範例。
 
+https://github.com/KiroKuru/UnityChatRoom
+
 大學時期印象中也有用Python跟Go弄過類似的聊天室Server，但當時的檔案翻不到了，這次嘗試用C#搭建，也算是額外再學習的機會。
